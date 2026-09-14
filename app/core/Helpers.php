@@ -56,19 +56,14 @@ function getFlashes(): array
     return $flashes;
 }
 
-function oldInput(string $key, $default = '')
+/**
+ * Read a value back out of a same-request "old input" array when a form
+ * redisplays after a validation failure (never persisted across requests —
+ * that would leak stale values into unrelated forms).
+ */
+function old(array $old, string $key, $default = '')
 {
-    return $_SESSION['_old'][$key] ?? $default;
-}
-
-function stashOldInput(array $data): void
-{
-    $_SESSION['_old'] = $data;
-}
-
-function clearOldInput(): void
-{
-    unset($_SESSION['_old']);
+    return $old[$key] ?? $default;
 }
 
 /** Format a nullable value for display: real "chưa xác nhận" instead of a bare 0 or blank. */
@@ -78,4 +73,13 @@ function displayValue($value, string $suffix = ''): string
         return '<span class="not-confirmed">chưa xác nhận</span>';
     }
     return e((string) $value) . $suffix;
+}
+
+/** @param array<string,string> $errors */
+function fieldError(array $errors, string $field): string
+{
+    if (empty($errors[$field])) {
+        return '';
+    }
+    return '<div class="field-error">' . e($errors[$field]) . '</div>';
 }

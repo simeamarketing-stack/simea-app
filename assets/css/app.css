@@ -122,6 +122,9 @@ thead th { background: var(--accent-soft); color: var(--accent); font-size: .78r
 
 .card { background: var(--paper-raised); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; }
 
+.page-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 16px; }
+.page-head h1 { margin: 0; font-size: 1.4rem; }
+
 .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
 
 @media (max-width: 720px) {

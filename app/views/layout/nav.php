@@ -5,10 +5,12 @@ $user = Auth::user();
 <header class="topbar">
   <div class="brand"><a href="<?= e(url('/')) ?>">SIMEA</a></div>
   <nav class="mainnav">
-    <?php if ($role === ROLE_DIEU_PHOI): ?>
-      <a href="<?= e(url('/danh-muc/khach-hang')) ?>">Danh mục</a>
-      <a href="<?= e(url('/bom')) ?>">BOM &amp; định mức</a>
-    <?php elseif ($role === ROLE_KHO): ?>
+    <?php if (in_array($role, [ROLE_DIEU_PHOI, ROLE_LANH_DAO], true)): ?>
+      <a href="<?= e(url('/danh-muc/khach-hang')) ?>">Khách hàng</a>
+      <a href="<?= e(url('/danh-muc/loai-ca-phe')) ?>">Loại cà phê</a>
+      <a href="<?= e(url('/danh-muc/sku')) ?>">SKU</a>
+    <?php endif; ?>
+    <?php if (in_array($role, [ROLE_KHO, ROLE_DIEU_PHOI, ROLE_LANH_DAO], true)): ?>
       <a href="<?= e(url('/danh-muc/vat-tu')) ?>">Vật tư</a>
     <?php endif; ?>
     <a href="<?= e(url('/kho/ton-kho')) ?>">Kho vật tư</a>
