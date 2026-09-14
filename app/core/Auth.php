@@ -33,7 +33,18 @@ class Auth
 
     public static function check(): bool
     {
-        return isset($_SESSION['user_id']);
+        if (!isset($_SESSION['user_id'])) {
+            return false;
+        }
+        // A session can outlive a role that no longer exists (e.g. the role
+        // model changes while someone is logged in) — treat that as logged
+        // out instead of leaving them stuck on a 403 with no way back to
+        // the login page.
+        if (!in_array($_SESSION['role'] ?? null, ALL_ROLES, true)) {
+            self::logout();
+            return false;
+        }
+        return true;
     }
 
     public static function user(): ?array
