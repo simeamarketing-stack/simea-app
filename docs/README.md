@@ -4,15 +4,16 @@
 
 ## Phạm vi phiên bản hiện tại (MVP)
 
-5 module vận hành cốt lõi, theo đúng bản thiết kế "Thiết Kế Vận Hành SIMEA":
+6 module, theo đúng bản thiết kế "Thiết Kế Vận Hành SIMEA":
 
 1. **Danh mục** — khách hàng, loại cà phê, vật tư (8 nhóm cố định), SKU sản phẩm
 2. **BOM & định mức năng suất** — versioned, draft/duyệt, tự sao chép phiên bản
 3. **Kho vật tư** — sổ cái cộng dồn (append-only ledger), giữ chỗ, xuất kho an toàn khi có nhiều người thao tác cùng lúc
 4. **Lệnh sản xuất** — trung tâm điều phối: tạo tối giản → bổ sung dần → phát hành (đóng băng BOM/định mức) → xác nhận lịch → theo dõi cảnh báo
 5. **Báo cáo ca** — ghi nhận, QC xác nhận, khóa báo cáo, lịch sử chỉnh sửa
+6. **Dashboard** — lịch sản xuất dạng lịch tháng, cảnh báo (thiếu vật tư/trễ hạn/thiếu báo cáo), vật tư sắp hết, tiến độ vs kế hoạch, tỷ lệ lỗi QC & hao hụt
 
-Các module **Quy cách sản phẩm, QC & thành phẩm, Đối soát kho, Dashboard lãnh đạo** được để ở phase sau — schema đã chừa chỗ, xem ghi chú trong `database/schema.sql`.
+Các module **Quy cách sản phẩm, QC & thành phẩm (đầy đủ — phiếu sự cố, cách ly/làm lại/loại bỏ), Đối soát kho** được để ở phase sau — schema đã chừa chỗ, xem ghi chú trong `database/schema.sql`. Dashboard hiện dùng 2 chỉ số QC tối giản (`qc_checked_qty`/`qc_defect_qty` nhập ngay lúc QC xác nhận báo cáo ca) làm giải pháp tạm cho tới khi module QC đầy đủ được xây.
 
 ## Vai trò & tài khoản mặc định
 

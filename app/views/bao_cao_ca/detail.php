@@ -42,10 +42,19 @@ $canLock = !$isLocked && Auth::is(ROLE_VAN_HANH);
 <div class="card">
   <p>Người ghi: <?= e($report['logged_by_name'] ?? '') ?> · <?= e($report['logged_at'] ?? '') ?></p>
   <p>QC xác nhận: <?= $report['qc_confirmed_by'] ? e($report['qc_confirmed_by_name']) . ' · ' . e($report['qc_confirmed_at']) : 'Chưa xác nhận' ?></p>
+  <?php if ($report['qc_confirmed_by']): ?>
+    <p>Số lượng đã kiểm: <?= displayValue($report['qc_checked_qty'] ?? null) ?> · Số lượng lỗi/hư hỏng: <?= displayValue($report['qc_defect_qty'] ?? null) ?></p>
+  <?php endif; ?>
   <?php if ($canConfirmQc): ?>
-    <form method="post" action="<?= e(url('/bao-cao-ca/' . $report['id'] . '/qc-xac-nhan')) ?>">
+    <form method="post" action="<?= e(url('/bao-cao-ca/' . $report['id'] . '/qc-xac-nhan')) ?>" class="stacked-form">
       <?= Csrf::field() ?>
-      <button type="submit" class="btn-secondary btn">QC xác nhận</button>
+      <label>Số lượng đã kiểm (không bắt buộc)
+        <input type="number" name="qc_checked_qty">
+      </label>
+      <label>Số lượng lỗi/hư hỏng (không bắt buộc)
+        <input type="number" name="qc_defect_qty">
+      </label>
+      <div><button type="submit" class="btn-secondary btn">QC xác nhận</button></div>
     </form>
   <?php endif; ?>
   <?php if ($isLocked): ?>

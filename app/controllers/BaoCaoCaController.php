@@ -149,7 +149,9 @@ class BaoCaoCaController extends Controller
     public function confirmQc(string $id): void
     {
         $this->requireCsrf();
-        (new ShiftReportModel())->confirmQc((int) $id, (int) Auth::user()['id']);
+        $checkedQty = $this->nullableInt($this->input('qc_checked_qty'));
+        $defectQty = $this->nullableInt($this->input('qc_defect_qty'));
+        (new ShiftReportModel())->confirmQc((int) $id, (int) Auth::user()['id'], $checkedQty, $defectQty);
         flash('success', 'QC đã xác nhận báo cáo ca.');
         $this->redirect("/bao-cao-ca/{$id}");
     }

@@ -32,13 +32,46 @@ class StockLedgerModel extends Model
     /** @return array<int,array<string,mixed>> One row per active material with stock/reserved/available. */
     public function stockSummary(): array
     {
-        $sql = "SELECT m.id, m.code, m.name, m.unit_of_measure, m.unit_type, g.name AS group_name,
+        $sql = "SELECT m.id, m.code, m.name, m.unit_of_measure, m.unit_type, m.min_stock_alert, g.name AS group_name,
                 COALESCE((SELECT SUM(sl.quantity) FROM stock_ledger sl WHERE sl.material_id = m.id), 0) AS stock,
                 COALESCE((SELECT SUM(mr.quantity_reserved) FROM material_reservations mr WHERE mr.material_id = m.id AND mr.status = 'active'), 0) AS reserved
                 FROM materials m
                 JOIN material_groups g ON g.id = m.material_group_id
                 WHERE m.is_active = 1
                 ORDER BY g.sort_order, m.name";
+        return $this->db()->query($sql)->fetchAll();
+    }
+
+    /**
+     * Vật tư đã set ngưỡng cảnh báo và hiện available <= ngưỡng đó, hoặc
+     * available <= 0 dù chưa set ngưỡng (luôn đáng báo — hết hàng thật sự).
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function lowStockAlerts(): array
+    {
+        $alerts = [];
+        foreach ($this->stockSummary() as $row) {
+            $available = (float) $row['stock'] - (float) $row['reserved'];
+            $threshold = $row['min_stock_alert'];
+            if (($threshold !== null && $available <= (float) $threshold) || $available <= 0) {
+                $row['available'] = $available;
+                $alerts[] = $row;
+            }
+        }
+        return $alerts;
+    }
+
+    /** Tổng vật tư ghi nhận "hỏng" trong tháng hiện tại, theo từng vật tư. */
+    public function damagedThisMonth(): array
+    {
+        $sql = "SELECT m.name, m.unit_of_measure, SUM(-sl.quantity) AS damaged_qty
+                FROM stock_ledger sl
+                JOIN materials m ON m.id = sl.material_id
+                WHERE sl.transaction_type = 'hong'
+                AND YEAR(sl.created_at) = YEAR(CURDATE()) AND MONTH(sl.created_at) = MONTH(CURDATE())
+                GROUP BY m.id, m.name, m.unit_of_measure
+                ORDER BY damaged_qty DESC";
         return $this->db()->query($sql)->fetchAll();
     }
 

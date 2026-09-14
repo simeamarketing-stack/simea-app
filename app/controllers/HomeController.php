@@ -9,6 +9,6 @@ class HomeController extends Controller
 {
     public function index(): void
     {
-        $this->view('home/index', ['user' => Auth::user()]);
+        $this->redirect('/dashboard');
     }
 }

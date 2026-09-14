@@ -63,6 +63,7 @@ CREATE TABLE materials (
     name VARCHAR(150) NOT NULL,
     unit_of_measure VARCHAR(20) NOT NULL,       -- display unit, e.g. 'cái','kg','g','cuộn'
     unit_type ENUM('count','continuous') NOT NULL, -- drives centralized rounding (roundQuantity())
+    min_stock_alert DECIMAL(14,4) NULL, -- optional; Dashboard flags this material when available <= threshold
     is_active TINYINT(1) NOT NULL DEFAULT 1,
     notes TEXT NULL,
     created_by INT UNSIGNED NULL,
@@ -293,6 +294,8 @@ CREATE TABLE shift_reports (
     logged_at DATETIME NULL,
     qc_confirmed_by INT UNSIGNED NULL,
     qc_confirmed_at DATETIME NULL,
+    qc_checked_qty INT UNSIGNED NULL,   -- optional, filled in by QC at confirm time — feeds dashboard defect rate
+    qc_defect_qty INT UNSIGNED NULL,    -- optional, filled in by QC at confirm time
     is_locked TINYINT(1) NOT NULL DEFAULT 0,
     locked_by INT UNSIGNED NULL,
     locked_at DATETIME NULL,

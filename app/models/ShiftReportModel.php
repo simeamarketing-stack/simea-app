@@ -131,12 +131,68 @@ class ShiftReportModel extends Model
         }
     }
 
-    public function confirmQc(int $id, int $confirmedBy): void
+    public function confirmQc(int $id, int $confirmedBy, ?int $checkedQty = null, ?int $defectQty = null): void
     {
         $stmt = $this->db()->prepare(
-            "UPDATE shift_reports SET qc_confirmed_by = :by, qc_confirmed_at = NOW() WHERE id = :id AND is_locked = 0"
+            "UPDATE shift_reports SET qc_confirmed_by = :by, qc_confirmed_at = NOW(),
+             qc_checked_qty = :checked, qc_defect_qty = :defect
+             WHERE id = :id AND is_locked = 0"
         );
-        $stmt->execute(['by' => $confirmedBy, 'id' => $id]);
+        $stmt->execute(['by' => $confirmedBy, 'checked' => $checkedQty, 'defect' => $defectQty, 'id' => $id]);
+    }
+
+    /**
+     * Tỷ lệ lỗi QC trong N ngày gần nhất, chỉ tính các báo cáo đã có nhập
+     * số liệu kiểm tra (qc_checked_qty IS NOT NULL) — không suy diễn báo cáo
+     * chưa nhập thành "không lỗi".
+     *
+     * @return array{checked:int,defect:int,rate:?float}
+     */
+    public function qcDefectRate(int $days = 30): array
+    {
+        $stmt = $this->db()->prepare(
+            'SELECT COALESCE(SUM(qc_checked_qty), 0) AS checked, COALESCE(SUM(qc_defect_qty), 0) AS defect
+             FROM shift_reports
+             WHERE qc_checked_qty IS NOT NULL AND report_date >= DATE_SUB(CURDATE(), INTERVAL :days DAY)'
+        );
+        $stmt->bindValue('days', $days, PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch();
+        $checked = (int) $row['checked'];
+        $defect = (int) $row['defect'];
+        return ['checked' => $checked, 'defect' => $defect, 'rate' => $checked > 0 ? $defect / $checked : null];
+    }
+
+    /**
+     * Tổng sản lượng thực tế vs chỉ tiêu trong N ngày gần nhất, chỉ tính
+     * các ca đã có cả 2 số liệu.
+     *
+     * @return array{output:int,target:int,pct:?float}
+     */
+    public function productivitySummary(int $days = 30): array
+    {
+        $stmt = $this->db()->prepare(
+            'SELECT COALESCE(SUM(output_qty), 0) AS output, COALESCE(SUM(target_qty), 0) AS target
+             FROM shift_reports
+             WHERE output_qty IS NOT NULL AND target_qty IS NOT NULL
+             AND report_date >= DATE_SUB(CURDATE(), INTERVAL :days DAY)'
+        );
+        $stmt->bindValue('days', $days, PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch();
+        $output = (int) $row['output'];
+        $target = (int) $row['target'];
+        return ['output' => $output, 'target' => $target, 'pct' => $target > 0 ? $output / $target : null];
+    }
+
+    /** Tổng sản lượng đã ghi nhận cho 1 lệnh sản xuất (để tính % hoàn thành so với planned_quantity). */
+    public function totalOutputForOrder(int $orderId): int
+    {
+        $stmt = $this->db()->prepare(
+            'SELECT COALESCE(SUM(output_qty), 0) FROM shift_reports WHERE production_order_id = :id AND output_qty IS NOT NULL'
+        );
+        $stmt->execute(['id' => $orderId]);
+        return (int) $stmt->fetchColumn();
     }
 
     /** Enforces all three lock conditions server-side regardless of who calls it. */

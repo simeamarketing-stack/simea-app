@@ -12,6 +12,7 @@ $router->post('/login', [AuthController::class, 'login'], ['*']);
 $router->post('/logout', [AuthController::class, 'logout'], ALL_ROLES);
 
 $router->get('/', [HomeController::class, 'index'], ALL_ROLES);
+$router->get('/dashboard', [DashboardController::class, 'index'], ALL_ROLES);
 
 // ---------------- Danh mục: khách hàng / loại cà phê / SKU (Quản lý only) ----------------
 $editMasterData = [ROLE_QUAN_LY];

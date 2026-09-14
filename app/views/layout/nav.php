@@ -5,6 +5,7 @@ $user = Auth::user();
 <header class="topbar">
   <div class="brand"><a href="<?= e(url('/')) ?>">SIMEA</a></div>
   <nav class="mainnav">
+    <a href="<?= e(url('/dashboard')) ?>">Dashboard</a>
     <a href="<?= e(url('/danh-muc/khach-hang')) ?>">Khách hàng</a>
     <a href="<?= e(url('/danh-muc/loai-ca-phe')) ?>">Loại cà phê</a>
     <a href="<?= e(url('/danh-muc/sku')) ?>">SKU</a>

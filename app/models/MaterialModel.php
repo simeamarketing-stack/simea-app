@@ -44,12 +44,13 @@ class MaterialModel extends Model
         string $name,
         string $unitOfMeasure,
         string $unitType,
+        ?float $minStockAlert,
         ?string $notes,
         int $createdBy
     ): int {
         $stmt = $this->db()->prepare(
-            'INSERT INTO materials (material_group_id, code, name, unit_of_measure, unit_type, notes, created_by)
-             VALUES (:group_id, :code, :name, :uom, :unit_type, :notes, :created_by)'
+            'INSERT INTO materials (material_group_id, code, name, unit_of_measure, unit_type, min_stock_alert, notes, created_by)
+             VALUES (:group_id, :code, :name, :uom, :unit_type, :min_stock_alert, :notes, :created_by)'
         );
         $stmt->execute([
             'group_id' => $groupId,
@@ -57,6 +58,7 @@ class MaterialModel extends Model
             'name' => $name,
             'uom' => $unitOfMeasure,
             'unit_type' => $unitType,
+            'min_stock_alert' => $minStockAlert,
             'notes' => $notes,
             'created_by' => $createdBy,
         ]);
@@ -70,11 +72,12 @@ class MaterialModel extends Model
         string $name,
         string $unitOfMeasure,
         string $unitType,
+        ?float $minStockAlert,
         ?string $notes
     ): void {
         $stmt = $this->db()->prepare(
             'UPDATE materials SET material_group_id = :group_id, code = :code, name = :name,
-             unit_of_measure = :uom, unit_type = :unit_type, notes = :notes WHERE id = :id'
+             unit_of_measure = :uom, unit_type = :unit_type, min_stock_alert = :min_stock_alert, notes = :notes WHERE id = :id'
         );
         $stmt->execute([
             'group_id' => $groupId,
@@ -82,6 +85,7 @@ class MaterialModel extends Model
             'name' => $name,
             'uom' => $unitOfMeasure,
             'unit_type' => $unitType,
+            'min_stock_alert' => $minStockAlert,
             'notes' => $notes,
             'id' => $id,
         ]);

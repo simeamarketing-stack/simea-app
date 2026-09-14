@@ -225,6 +225,41 @@ class ProductionOrderModel extends Model
         return true;
     }
 
+    /**
+     * Orders whose [planned_start_date, current_due_date] range overlaps
+     * [$rangeStart, $rangeEnd] — used to render the monthly calendar. Orders
+     * with no dates at all are excluded (nothing to plot).
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function ordersOverlappingRange(string $rangeStart, string $rangeEnd): array
+    {
+        $stmt = $this->db()->prepare(
+            $this->baseSelect() . " WHERE po.status <> 'cancelled'
+             AND po.planned_start_date IS NOT NULL
+             AND COALESCE(po.current_due_date, po.planned_start_date) >= :range_start
+             AND po.planned_start_date <= :range_end
+             ORDER BY po.planned_start_date"
+        );
+        $stmt->execute(['range_start' => $rangeStart, 'range_end' => $rangeEnd]);
+        return $stmt->fetchAll();
+    }
+
+    /** Lệnh cần chú ý (badge khác 'bình thường'/'hoàn tất'), kèm badge đã tính sẵn. */
+    public function attentionList(): array
+    {
+        $orders = $this->allList();
+        $attention = [];
+        foreach ($orders as $order) {
+            $badge = $this->computeBadge($order);
+            if (!in_array($badge['key'], ['normal', 'done'], true)) {
+                $order['badge'] = $badge;
+                $attention[] = $order;
+            }
+        }
+        return $attention;
+    }
+
     private function hasRecentReport(int $orderId): bool
     {
         $stmt = $this->db()->prepare(

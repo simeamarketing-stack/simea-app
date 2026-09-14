@@ -36,6 +36,9 @@ $currentUnitType = $isEdit ? $material['unit_type'] : old($old, 'unit_type');
     </select>
     <?= fieldError($errors, 'unit_type') ?>
   </label>
+  <label>Ngưỡng cảnh báo tồn kho (để trống nếu chưa cần cảnh báo)
+    <input type="number" step="0.0001" name="min_stock_alert" value="<?= e($isEdit ? ($material['min_stock_alert'] ?? '') : old($old, 'min_stock_alert')) ?>">
+  </label>
   <label>Ghi chú
     <textarea name="notes" rows="2"><?= e($isEdit ? ($material['notes'] ?? '') : old($old, 'notes')) ?></textarea>
   </label>

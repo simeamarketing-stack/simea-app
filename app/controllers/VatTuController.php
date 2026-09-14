@@ -53,6 +53,8 @@ class VatTuController extends Controller
         $groupId = (int) $this->input('material_group_id', 0);
         $unitOfMeasure = trim((string) $this->input('unit_of_measure', ''));
         $unitType = (string) $this->input('unit_type', '');
+        $minStockAlertRaw = $this->input('min_stock_alert', '');
+        $minStockAlert = $minStockAlertRaw === '' ? null : (float) $minStockAlertRaw;
         $notes = trim((string) $this->input('notes', ''));
         $notes = $notes === '' ? null : $notes;
         $code = normalizeCode($rawCode);
@@ -75,7 +77,8 @@ class VatTuController extends Controller
         if ($validator->fails()) {
             $old = [
                 'code' => $rawCode, 'name' => $name, 'material_group_id' => $groupId,
-                'unit_of_measure' => $unitOfMeasure, 'unit_type' => $unitType, 'notes' => $notes,
+                'unit_of_measure' => $unitOfMeasure, 'unit_type' => $unitType,
+                'min_stock_alert' => $minStockAlertRaw, 'notes' => $notes,
             ];
             $groups = (new MaterialGroupModel())->all();
             $this->view('vat_tu/form', ['material' => $existing, 'groups' => $groups, 'errors' => $validator->errors(), 'old' => $old]);
@@ -84,10 +87,10 @@ class VatTuController extends Controller
 
         try {
             if ($existing) {
-                $model->update((int) $existing['id'], $groupId, $code, $name, $unitOfMeasure, $unitType, $notes);
+                $model->update((int) $existing['id'], $groupId, $code, $name, $unitOfMeasure, $unitType, $minStockAlert, $notes);
                 flash('success', 'Đã cập nhật vật tư.');
             } else {
-                $model->create($groupId, $code, $name, $unitOfMeasure, $unitType, $notes, (int) Auth::user()['id']);
+                $model->create($groupId, $code, $name, $unitOfMeasure, $unitType, $minStockAlert, $notes, (int) Auth::user()['id']);
                 flash('success', 'Đã thêm vật tư mới.');
             }
         } catch (PDOException $e) {

@@ -135,6 +135,35 @@ thead th { background: var(--accent-soft); color: var(--accent); font-size: .78r
 .catchup-box .catchup-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-muted); font-weight: 600; margin-bottom: 8px; }
 .shortfall-active .catchup-label { color: var(--risk); }
 
+/* Dashboard */
+.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.kpi-tile { background: var(--paper-raised); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; text-align: center; }
+.kpi-tile.kpi-risk { background: var(--risk-soft); border-color: var(--risk); }
+.kpi-value { font-size: 1.6rem; font-weight: 800; color: var(--accent); }
+.kpi-tile.kpi-risk .kpi-value { color: var(--risk); }
+.kpi-label { font-size: .78rem; color: var(--ink-muted); margin-top: 2px; }
+
+.calendar-wrap { overflow-x: auto; }
+table.calendar { table-layout: fixed; width: 100%; min-width: 640px; }
+table.calendar th { text-align: center; background: var(--accent-soft); color: var(--accent); padding: 6px; font-size: .75rem; }
+table.calendar td { vertical-align: top; height: 90px; padding: 4px; border: 1px solid var(--line); }
+table.calendar td.calendar-today { background: var(--info-soft); }
+.calendar-daynum { font-size: .78rem; color: var(--ink-muted); font-weight: 700; margin-bottom: 3px; }
+.calendar-pill { display: block; font-size: .68rem; color: #fff; padding: 2px 5px; border-radius: 5px; margin-bottom: 2px; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.alert-group { margin-bottom: 14px; }
+.alert-group:last-child { margin-bottom: 0; }
+.alert-group-label { font-weight: 700; color: var(--risk); font-size: .88rem; margin-bottom: 4px; }
+.alert-group ul { margin: 0; padding-left: 20px; font-size: .9rem; }
+
+.progress-row { margin-bottom: 16px; }
+.progress-row:last-child { margin-bottom: 0; }
+.progress-head { font-size: .92rem; font-weight: 600; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+.progress-bar-track { position: relative; height: 10px; background: var(--paper-sunk, var(--line)); border-radius: 6px; overflow: visible; }
+.progress-bar-fill { height: 100%; background: var(--good); border-radius: 6px; }
+.progress-bar-marker { position: absolute; top: -3px; width: 2px; height: 16px; background: var(--ink); }
+.progress-meta { font-size: .8rem; color: var(--ink-muted); margin-top: 4px; }
+
 .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
 
 @media (max-width: 720px) {
