@@ -92,4 +92,13 @@ $router->post('/lenh-san-xuat/{id}/giu-cho', [LenhSanXuatController::class, 'res
 $router->post('/lenh-san-xuat/reservation/{reservationId}/huy', [LenhSanXuatController::class, 'releaseReservation'], [ROLE_DIEU_PHOI, ROLE_KHO]);
 $router->post('/lenh-san-xuat/reservation/{reservationId}/xuat', [LenhSanXuatController::class, 'issueReservation'], [ROLE_KHO]);
 
+// ---------------- Báo cáo ca ----------------
+$router->get('/bao-cao-ca', [BaoCaoCaController::class, 'list'], ALL_ROLES);
+$router->get('/bao-cao-ca/tao', [BaoCaoCaController::class, 'createForm'], [ROLE_XUONG]);
+$router->post('/bao-cao-ca/tao', [BaoCaoCaController::class, 'store'], [ROLE_XUONG]);
+$router->get('/bao-cao-ca/{id}', [BaoCaoCaController::class, 'show'], ALL_ROLES);
+$router->post('/bao-cao-ca/{id}/cap-nhat', [BaoCaoCaController::class, 'update'], [ROLE_XUONG, ROLE_DIEU_PHOI]);
+$router->post('/bao-cao-ca/{id}/qc-xac-nhan', [BaoCaoCaController::class, 'confirmQc'], [ROLE_QC]);
+$router->post('/bao-cao-ca/{id}/khoa', [BaoCaoCaController::class, 'lock'], [ROLE_XUONG, ROLE_QC]);
+
 return $router;

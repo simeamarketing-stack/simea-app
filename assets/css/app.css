@@ -130,6 +130,11 @@ thead th { background: var(--accent-soft); color: var(--accent); font-size: .78r
 .row-risk td { background: var(--risk-soft); }
 .hint { color: var(--ink-muted); font-size: .85rem; }
 
+.catchup-box { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; transition: background .15s, border-color .15s; }
+.catchup-box.shortfall-active { background: var(--risk-soft); border-color: var(--risk); }
+.catchup-box .catchup-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-muted); font-weight: 600; margin-bottom: 8px; }
+.shortfall-active .catchup-label { color: var(--risk); }
+
 .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
 
 @media (max-width: 720px) {
