@@ -127,6 +127,8 @@ thead th { background: var(--accent-soft); color: var(--accent); font-size: .78r
 
 .inline-line-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .inline-line-form input, .inline-line-form select { width: auto; min-width: 110px; }
+.row-risk td { background: var(--risk-soft); }
+.hint { color: var(--ink-muted); font-size: .85rem; }
 
 .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
 
