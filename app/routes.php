@@ -47,4 +47,23 @@ $router->post('/danh-muc/sku/tao', [SkuController::class, 'store'], $editMasterD
 $router->get('/danh-muc/sku/{id}/sua', [SkuController::class, 'editForm'], $editMasterData);
 $router->post('/danh-muc/sku/{id}/sua', [SkuController::class, 'update'], $editMasterData);
 
+// ---------------- BOM & định mức (DP full, Xưởng/LD view) ----------------
+$viewBom = [ROLE_DIEU_PHOI, ROLE_XUONG, ROLE_LANH_DAO];
+$editBom = [ROLE_DIEU_PHOI];
+
+$router->get('/bom/sku/{skuId}', [BomController::class, 'listForSku'], $viewBom);
+$router->post('/bom/sku/{skuId}/tao-phien-ban-moi', [BomController::class, 'createVersion'], $editBom);
+$router->get('/bom/{id}', [BomController::class, 'show'], $viewBom);
+$router->post('/bom/{id}/dong', [BomController::class, 'addLine'], $editBom);
+$router->post('/bom/line/{lineId}/sua', [BomController::class, 'updateLine'], $editBom);
+$router->post('/bom/line/{lineId}/xoa', [BomController::class, 'deleteLine'], $editBom);
+$router->post('/bom/{id}/case-spec', [BomController::class, 'saveCaseSpec'], $editBom);
+$router->post('/bom/{id}/duyet', [BomController::class, 'approve'], $editBom);
+
+$router->get('/dinh-muc/sku/{skuId}', [DinhMucController::class, 'listForSku'], $viewBom);
+$router->post('/dinh-muc/sku/{skuId}/tao-phien-ban-moi', [DinhMucController::class, 'createVersion'], $editBom);
+$router->get('/dinh-muc/{id}', [DinhMucController::class, 'show'], $viewBom);
+$router->post('/dinh-muc/{id}/sua', [DinhMucController::class, 'update'], $editBom);
+$router->post('/dinh-muc/{id}/duyet', [DinhMucController::class, 'approve'], $editBom);
+
 return $router;
