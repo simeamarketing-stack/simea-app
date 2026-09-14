@@ -1,7 +1,7 @@
 <?php if (!defined('APP_BOOTSTRAPPED')) { http_response_code(403); exit; } ?>
 <div class="page-head">
   <h1>Tồn kho vật tư</h1>
-  <?php if (Auth::is(ROLE_KHO)): ?>
+  <?php if (Auth::is(ROLE_VAN_HANH)): ?>
     <div>
       <a class="btn-secondary btn" href="<?= e(url('/kho/phieu')) ?>">Danh sách phiếu</a>
       <a class="btn" href="<?= e(url('/kho/phieu/tao')) ?>">+ Ghi nhận phiếu</a>

@@ -61,7 +61,7 @@ Giữ nguyên mặc định của hosting (thường 644 cho file, 755 cho thư 
 
 ## 8. Đăng nhập lần đầu & đổi mật khẩu
 
-Đăng nhập lần lượt bằng 5 tài khoản (`lanhdao`, `dieuphoi`, `xuong`, `kho`, `qc` — mật khẩu mặc định `Simea@2026`) để xác nhận đúng vai trò/giao diện hiển thị.
+Đăng nhập lần lượt bằng 2 tài khoản (`quanly`, `vanhanh` — mật khẩu mặc định `Simea@2026`) để xác nhận đúng vai trò/giao diện hiển thị.
 
 **Đổi mật khẩu ngay**: phiên bản này chưa có màn hình đổi mật khẩu. Cách đổi:
 1. Tạo hash mật khẩu mới — chạy tạm trên máy có PHP: `php -r "echo password_hash('MAT_KHAU_MOI', PASSWORD_DEFAULT);"`

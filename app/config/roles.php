@@ -5,18 +5,15 @@ if (!defined('APP_BOOTSTRAPPED')) {
     exit;
 }
 
-define('ROLE_LANH_DAO', 'lanh_dao');
-define('ROLE_DIEU_PHOI', 'dieu_phoi');
-define('ROLE_XUONG', 'xuong');
-define('ROLE_KHO', 'kho');
-define('ROLE_QC', 'qc');
+// Only 2 roles: the same person currently covers Kho + Xưởng + QC day to day,
+// and another covers Điều phối + Lãnh đạo — so permissions are merged
+// accordingly rather than modeling 5 people who don't exist yet.
+define('ROLE_QUAN_LY', 'quan_ly');   // was: Điều phối + Lãnh đạo
+define('ROLE_VAN_HANH', 'van_hanh'); // was: Kho + Xưởng + QC
 
-define('ALL_ROLES', [ROLE_LANH_DAO, ROLE_DIEU_PHOI, ROLE_XUONG, ROLE_KHO, ROLE_QC]);
+define('ALL_ROLES', [ROLE_QUAN_LY, ROLE_VAN_HANH]);
 
 define('ROLE_LABELS', [
-    ROLE_LANH_DAO => 'Lãnh đạo',
-    ROLE_DIEU_PHOI => 'Điều phối',
-    ROLE_XUONG => 'Xưởng',
-    ROLE_KHO => 'Kho',
-    ROLE_QC => 'QC',
+    ROLE_QUAN_LY => 'Quản lý',
+    ROLE_VAN_HANH => 'Vận hành',
 ]);

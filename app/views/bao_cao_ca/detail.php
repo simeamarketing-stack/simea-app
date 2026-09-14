@@ -1,9 +1,9 @@
 <?php
 if (!defined('APP_BOOTSTRAPPED')) { http_response_code(403); exit; }
 $isLocked = (int) $report['is_locked'] === 1;
-$canEdit = !$isLocked && Auth::is(ROLE_XUONG, ROLE_DIEU_PHOI);
-$canConfirmQc = !$isLocked && !$report['qc_confirmed_by'] && Auth::is(ROLE_QC);
-$canLock = !$isLocked && Auth::is(ROLE_XUONG, ROLE_QC);
+$canEdit = !$isLocked && Auth::is(ROLE_VAN_HANH, ROLE_QUAN_LY);
+$canConfirmQc = !$isLocked && !$report['qc_confirmed_by'] && Auth::is(ROLE_VAN_HANH);
+$canLock = !$isLocked && Auth::is(ROLE_VAN_HANH);
 ?>
 <div class="page-head">
   <h1>Báo cáo ca — <?= e($report['order_code']) ?> — <?= e($report['report_date']) ?> — <?= e($report['line']) ?></h1>

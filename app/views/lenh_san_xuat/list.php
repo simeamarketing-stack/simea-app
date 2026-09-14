@@ -3,7 +3,7 @@ $statusLabels = ['draft' => 'Nháp', 'released' => 'Đã phát hành', 'in_progr
 ?>
 <div class="page-head">
   <h1>Lệnh sản xuất</h1>
-  <?php if (Auth::is(ROLE_DIEU_PHOI)): ?>
+  <?php if (Auth::is(ROLE_QUAN_LY)): ?>
     <a class="btn" href="<?= e(url('/lenh-san-xuat/tao')) ?>">+ Tạo lệnh</a>
   <?php endif; ?>
 </div>

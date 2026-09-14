@@ -1,7 +1,7 @@
 <?php if (!defined('APP_BOOTSTRAPPED')) { http_response_code(403); exit; } ?>
 <div class="page-head">
   <h1>SKU sản phẩm</h1>
-  <?php if (Auth::is(ROLE_DIEU_PHOI)): ?>
+  <?php if (Auth::is(ROLE_QUAN_LY)): ?>
     <a class="btn" href="<?= e(url('/danh-muc/sku/tao')) ?>">+ Thêm SKU</a>
   <?php endif; ?>
 </div>
@@ -17,7 +17,7 @@
       <td><?= (int) $s['units_per_box'] ?></td>
       <td>
         <a href="<?= e(url('/bom/sku/' . $s['id'])) ?>">BOM</a>
-        <?php if (Auth::is(ROLE_DIEU_PHOI)): ?> · <a href="<?= e(url('/danh-muc/sku/' . $s['id'] . '/sua')) ?>">Sửa</a><?php endif; ?>
+        <?php if (Auth::is(ROLE_QUAN_LY)): ?> · <a href="<?= e(url('/danh-muc/sku/' . $s['id'] . '/sua')) ?>">Sửa</a><?php endif; ?>
       </td>
     </tr>
   <?php endforeach; ?>

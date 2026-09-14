@@ -3,7 +3,7 @@
   <h1>Định mức năng suất — <?= e($sku['code']) ?></h1>
   <div>
     <a class="btn-secondary btn" href="<?= e(url('/bom/sku/' . $sku['id'])) ?>">BOM</a>
-    <?php if (Auth::is(ROLE_DIEU_PHOI)): ?>
+    <?php if (Auth::is(ROLE_QUAN_LY)): ?>
       <form method="post" action="<?= e(url('/dinh-muc/sku/' . $sku['id'] . '/tao-phien-ban-moi')) ?>" style="display:inline">
         <?= Csrf::field() ?>
         <button type="submit" class="btn">+ Tạo phiên bản mới</button>

@@ -1,7 +1,7 @@
 <?php if (!defined('APP_BOOTSTRAPPED')) { http_response_code(403); exit; } ?>
 <div class="page-head">
   <h1>Báo cáo ca</h1>
-  <?php if (Auth::is(ROLE_XUONG)): ?>
+  <?php if (Auth::is(ROLE_VAN_HANH)): ?>
     <a class="btn" href="<?= e(url('/bao-cao-ca/tao')) ?>">+ Ghi báo cáo ca</a>
   <?php endif; ?>
 </div>

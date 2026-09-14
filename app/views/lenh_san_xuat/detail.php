@@ -2,11 +2,11 @@
 if (!defined('APP_BOOTSTRAPPED')) { http_response_code(403); exit; }
 $statusLabels = ['draft' => 'Nháp', 'released' => 'Đã phát hành', 'in_progress' => 'Đang chạy', 'completed' => 'Hoàn tất', 'cancelled' => 'Đã hủy'];
 $isDraft = $order['status'] === 'draft';
-$canEditInfo = $isDraft && Auth::is(ROLE_DIEU_PHOI);
-$canRelease = $isDraft && Auth::is(ROLE_DIEU_PHOI);
-$canSchedule = !$isDraft && Auth::is(ROLE_XUONG);
-$canReserve = !$isDraft && Auth::is(ROLE_DIEU_PHOI, ROLE_KHO);
-$canIssue = Auth::is(ROLE_KHO);
+$canEditInfo = $isDraft && Auth::is(ROLE_QUAN_LY);
+$canRelease = $isDraft && Auth::is(ROLE_QUAN_LY);
+$canSchedule = !$isDraft && Auth::is(ROLE_VAN_HANH);
+$canReserve = !$isDraft && Auth::is(ROLE_QUAN_LY, ROLE_VAN_HANH);
+$canIssue = Auth::is(ROLE_VAN_HANH);
 ?>
 <div class="page-head">
   <h1><?= e($order['order_code']) ?> — <?= e($order['customer_name']) ?></h1>
@@ -127,7 +127,7 @@ $canIssue = Auth::is(ROLE_KHO);
 
 <div class="card">
 <h3>Chuyền &amp; người phụ trách</h3>
-<?php if (Auth::is(ROLE_XUONG)): ?>
+<?php if (Auth::is(ROLE_VAN_HANH)): ?>
 <form method="post" action="<?= e(url('/lenh-san-xuat/' . $order['id'] . '/gan-nhan-su')) ?>" class="stacked-form">
   <?= Csrf::field() ?>
   <label>Chuyền <input type="text" name="chuyen" value="<?= e($order['chuyen'] ?? '') ?>"></label>

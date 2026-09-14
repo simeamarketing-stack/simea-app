@@ -1,6 +1,6 @@
 <?php if (!defined('APP_BOOTSTRAPPED')) { http_response_code(403); exit; }
 $isDraft = $version['status'] === 'draft';
-$canEdit = $isDraft && Auth::is(ROLE_DIEU_PHOI);
+$canEdit = $isDraft && Auth::is(ROLE_QUAN_LY);
 ?>
 <div class="page-head">
   <h1>BOM <?= e($version['sku_code']) ?> — v<?= (int) $version['version_number'] ?></h1>
@@ -99,7 +99,7 @@ $canEdit = $isDraft && Auth::is(ROLE_DIEU_PHOI);
 <?php endif; ?>
 </div>
 
-<?php if ($isDraft && Auth::is(ROLE_DIEU_PHOI)): ?>
+<?php if ($isDraft && Auth::is(ROLE_QUAN_LY)): ?>
 <form method="post" action="<?= e(url('/bom/' . $version['id'] . '/duyet')) ?>" onsubmit="return confirm('Duyệt phiên bản BOM này?');">
   <?= Csrf::field() ?>
   <button type="submit" class="btn-primary">Duyệt BOM</button>

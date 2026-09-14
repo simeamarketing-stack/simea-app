@@ -16,15 +16,14 @@ Các module **Quy cách sản phẩm, QC & thành phẩm, Đối soát kho, Dash
 
 ## Vai trò & tài khoản mặc định
 
-5 tài khoản cố định, seed sẵn trong `database/seed_users.sql`, mật khẩu mặc định **`Simea@2026`** (đổi ngay sau khi lên production — xem mục Bảo mật bên dưới):
+2 tài khoản cố định, seed sẵn trong `database/seed_users.sql`, mật khẩu mặc định **`Simea@2026`** (đổi ngay sau khi lên production — xem mục Bảo mật bên dưới). Gộp theo đúng thực tế hiện tại của SIMEA (1 người vận hành hiện trường, 1 người điều hành):
 
-| Username | Vai trò |
-|---|---|
-| `lanhdao` | Lãnh đạo (chỉ xem toàn bộ) |
-| `dieuphoi` | Điều phối |
-| `xuong` | Xưởng |
-| `kho` | Kho |
-| `qc` | QC |
+| Username | Vai trò | Quyền |
+|---|---|---|
+| `quanly` | Quản lý | Toàn quyền Danh mục, BOM & định mức, tạo/phát hành lệnh sản xuất; xem toàn bộ hệ thống |
+| `vanhanh` | Vận hành | Toàn quyền Kho vật tư, giữ chỗ/xuất vật tư, xác nhận/đổi lịch, gán chuyền, ghi & khóa báo cáo ca, QC xác nhận |
+
+Sau này khi tách người phụ trách riêng cho Kho/Xưởng/QC hoặc cho Lãnh đạo xem-only, chỉ cần thêm role mới trong `app/config/roles.php` và cập nhật các mảng quyền trong `app/routes.php` — không cần sửa lại schema hay logic nghiệp vụ.
 
 ## Chạy thử ở máy local
 

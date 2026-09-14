@@ -16,7 +16,7 @@ CREATE TABLE users (
     username VARCHAR(50) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(150) NOT NULL,
-    role ENUM('lanh_dao','dieu_phoi','xuong','kho','qc') NOT NULL,
+    role ENUM('quan_ly','van_hanh') NOT NULL,
     is_active TINYINT(1) NOT NULL DEFAULT 1,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
