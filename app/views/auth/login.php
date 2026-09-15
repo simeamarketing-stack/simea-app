@@ -1,6 +1,11 @@
 <?php if (!defined('APP_BOOTSTRAPPED')) { http_response_code(403); exit; } ?>
 <div class="login-box">
-  <h1>Đăng nhập SIMEA</h1>
+  <div class="login-brand">
+    <img class="brand-mark" src="<?= e(url('/assets/img/logo-mark.svg')) ?>" alt="">
+    <span class="brand-word">IMEA</span>
+  </div>
+  <p class="login-tagline">Hệ thống quản lý vận hành sản xuất</p>
+
   <form method="post" action="<?= e(url('/login')) ?>" class="stacked-form">
     <?= Csrf::field() ?>
     <label>Tên đăng nhập

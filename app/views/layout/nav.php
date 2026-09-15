@@ -3,7 +3,12 @@ $role = Auth::role();
 $user = Auth::user();
 ?>
 <header class="topbar">
-  <div class="brand"><a href="<?= e(url('/')) ?>">SIMEA</a></div>
+  <div class="brand">
+    <a href="<?= e(url('/')) ?>">
+      <img class="brand-mark" src="<?= e(url('/assets/img/logo-mark.svg')) ?>" alt="">
+      <span class="brand-word">IMEA</span>
+    </a>
+  </div>
   <nav class="mainnav">
     <a href="<?= e(url('/dashboard')) ?>">Dashboard</a>
     <a href="<?= e(url('/danh-muc/khach-hang')) ?>">Khách hàng</a>
