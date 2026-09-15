@@ -59,6 +59,7 @@ class ShiftReportModel extends Model
         string $reportDate,
         string $line,
         ?int $outputQty,
+        ?int $finishedQty,
         ?int $workerCount,
         ?string $incidents,
         ?int $targetQty,
@@ -67,14 +68,14 @@ class ShiftReportModel extends Model
         int $loggedBy
     ): int {
         $stmt = $this->db()->prepare(
-            'INSERT INTO shift_reports (production_order_id, report_date, line, output_qty, worker_count, incidents,
-             target_qty, catch_up_target_tomorrow, remediation_plan, logged_by, logged_at)
-             VALUES (:order_id, :date, :line, :output, :workers, :incidents, :target, :catchup, :plan, :logged_by, NOW())'
+            'INSERT INTO shift_reports (production_order_id, report_date, line, output_qty, finished_qty, worker_count,
+             incidents, target_qty, catch_up_target_tomorrow, remediation_plan, logged_by, logged_at)
+             VALUES (:order_id, :date, :line, :output, :finished, :workers, :incidents, :target, :catchup, :plan, :logged_by, NOW())'
         );
         $stmt->execute([
             'order_id' => $orderId, 'date' => $reportDate, 'line' => $line, 'output' => $outputQty,
-            'workers' => $workerCount, 'incidents' => $incidents, 'target' => $targetQty,
-            'catchup' => $catchUpTarget, 'plan' => $remediationPlan, 'logged_by' => $loggedBy,
+            'finished' => $finishedQty, 'workers' => $workerCount, 'incidents' => $incidents,
+            'target' => $targetQty, 'catchup' => $catchUpTarget, 'plan' => $remediationPlan, 'logged_by' => $loggedBy,
         ]);
         return (int) $this->db()->lastInsertId();
     }
@@ -131,29 +132,28 @@ class ShiftReportModel extends Model
         }
     }
 
-    public function confirmQc(int $id, int $confirmedBy, ?int $checkedQty = null, ?int $defectQty = null): void
+    public function confirmQc(int $id, int $confirmedBy): void
     {
         $stmt = $this->db()->prepare(
-            "UPDATE shift_reports SET qc_confirmed_by = :by, qc_confirmed_at = NOW(),
-             qc_checked_qty = :checked, qc_defect_qty = :defect
-             WHERE id = :id AND is_locked = 0"
+            "UPDATE shift_reports SET qc_confirmed_by = :by, qc_confirmed_at = NOW() WHERE id = :id AND is_locked = 0"
         );
-        $stmt->execute(['by' => $confirmedBy, 'checked' => $checkedQty, 'defect' => $defectQty, 'id' => $id]);
+        $stmt->execute(['by' => $confirmedBy, 'id' => $id]);
     }
 
     /**
-     * Tỷ lệ lỗi QC trong N ngày gần nhất, chỉ tính các báo cáo đã có nhập
-     * số liệu kiểm tra (qc_checked_qty IS NOT NULL) — không suy diễn báo cáo
-     * chưa nhập thành "không lỗi".
+     * Tỷ lệ lỗi trong N ngày gần nhất = (thực tế − thành phẩm) / thực tế.
+     * Chỉ tính ca đã khai cả hai số — ca chưa khai thành phẩm không bị suy
+     * diễn thành "không lỗi".
      *
      * @return array{checked:int,defect:int,rate:?float}
      */
     public function qcDefectRate(int $days = 30): array
     {
         $stmt = $this->db()->prepare(
-            'SELECT COALESCE(SUM(qc_checked_qty), 0) AS checked, COALESCE(SUM(qc_defect_qty), 0) AS defect
+            'SELECT COALESCE(SUM(output_qty), 0) AS checked, COALESCE(SUM(output_qty - finished_qty), 0) AS defect
              FROM shift_reports
-             WHERE qc_checked_qty IS NOT NULL AND report_date >= DATE_SUB(CURDATE(), INTERVAL :days DAY)'
+             WHERE output_qty IS NOT NULL AND finished_qty IS NOT NULL
+               AND report_date >= DATE_SUB(CURDATE(), INTERVAL :days DAY)'
         );
         $stmt->bindValue('days', $days, PDO::PARAM_INT);
         $stmt->execute();
@@ -161,6 +161,42 @@ class ShiftReportModel extends Model
         $checked = (int) $row['checked'];
         $defect = (int) $row['defect'];
         return ['checked' => $checked, 'defect' => $defect, 'rate' => $checked > 0 ? $defect / $checked : null];
+    }
+
+    /**
+     * Danh sách NGÀY có hoạt động (có báo cáo ca), kèm số liệu tổng — dùng
+     * cho màn hình danh sách báo cáo ca theo ngày.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function dayList(int $limit = 60): array
+    {
+        $stmt = $this->db()->prepare(
+            'SELECT report_date,
+                    COUNT(*) AS row_count,
+                    COUNT(DISTINCT production_order_id) AS order_count,
+                    COALESCE(SUM(output_qty), 0) AS output_total,
+                    COALESCE(SUM(finished_qty), 0) AS finished_total,
+                    COALESCE(SUM(target_qty), 0) AS target_total,
+                    COUNT(finished_qty) AS finished_rows,
+                    COALESCE(SUM(CASE WHEN finished_qty IS NOT NULL AND output_qty IS NOT NULL THEN output_qty END), 0) AS defect_base,
+                    COALESCE(SUM(CASE WHEN finished_qty IS NOT NULL AND output_qty IS NOT NULL THEN output_qty - finished_qty END), 0) AS defect_total,
+                    SUM(is_locked) AS locked_count,
+                    SUM(CASE WHEN qc_confirmed_by IS NOT NULL THEN 1 ELSE 0 END) AS qc_count
+             FROM shift_reports
+             GROUP BY report_date
+             ORDER BY report_date DESC
+             LIMIT :lim'
+        );
+        $stmt->bindValue('lim', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    /** Báo cáo ca của đúng một ngày, gồm cả thông tin lệnh để dựng bảng. */
+    public function forDate(string $date): array
+    {
+        return $this->reportsBetween($date, $date);
     }
 
     /**
@@ -202,6 +238,32 @@ class ShiftReportModel extends Model
              ORDER BY sr.report_date, sr.line, sr.id'
         );
         $stmt->execute(['start' => $startDate, 'end' => $endDate]);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Các ca hụt chỉ tiêu trong N ngày gần nhất, kèm sẵn định mức năng suất
+     * đã đóng băng của lệnh để tính đề xuất bù mà không phải query lặp.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function shortfallReports(int $days): array
+    {
+        $stmt = $this->db()->prepare(
+            'SELECT sr.*, po.order_code, po.planned_quantity, c.name AS customer_name, s.code AS sku_code,
+                    yn.standard_worker_count, yn.hours_per_day, yn.boxes_per_hour
+             FROM shift_reports sr
+             JOIN production_orders po ON po.id = sr.production_order_id
+             JOIN customers c ON c.id = po.customer_id
+             LEFT JOIN skus s ON s.id = po.sku_id
+             LEFT JOIN yield_norms yn ON yn.id = po.released_yield_norm_id
+             WHERE sr.output_qty IS NOT NULL AND sr.target_qty IS NOT NULL
+               AND sr.output_qty < sr.target_qty
+               AND sr.report_date >= DATE_SUB(CURDATE(), INTERVAL :days DAY)
+             ORDER BY sr.report_date DESC, sr.id DESC'
+        );
+        $stmt->bindValue('days', $days, PDO::PARAM_INT);
+        $stmt->execute();
         return $stmt->fetchAll();
     }
 

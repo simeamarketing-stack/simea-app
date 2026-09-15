@@ -33,6 +33,10 @@ $today = date('Y-m-d');
     <div class="kpi-value"><?= (int) $lowStockCount ?></div>
     <div class="kpi-label">Vật tư sắp hết</div>
   </a>
+  <a class="kpi-tile <?= $shortfallCount ? 'kpi-risk' : '' ?>" href="<?= e(url('/dashboard/chi-tiet/bu-san-luong')) ?>">
+    <div class="kpi-value"><?= (int) $shortfallCount ?></div>
+    <div class="kpi-label">Ca hụt chỉ tiêu (<?= (int) $shortfallWindow ?> ngày)</div>
+  </a>
   <a class="kpi-tile" href="<?= e(url('/dashboard/chi-tiet/hieu-suat')) ?>">
     <div class="kpi-value"><?= $productivity['pct'] !== null ? round($productivity['pct'] * 100) . '%' : '—' ?></div>
     <div class="kpi-label">Hiệu suất 30 ngày</div>

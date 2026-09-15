@@ -37,7 +37,11 @@ class DinhMucController extends Controller
             $this->abort404();
         }
         $missing = $version['status'] === 'draft' ? $model->missingFields($version) : [];
-        $this->view('dinh_muc/version_detail', ['version' => $version, 'missing' => $missing]);
+        $this->view('dinh_muc/version_detail', [
+            'version' => $version,
+            'missing' => $missing,
+            'labor' => $model->laborStandard($version),
+        ]);
     }
 
     public function update(string $id): void

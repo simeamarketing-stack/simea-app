@@ -14,8 +14,9 @@ $canLock = !$isLocked && Auth::is(ROLE_VAN_HANH);
 <?php if ($canEdit): ?>
 <form method="post" action="<?= e(url('/bao-cao-ca/' . $report['id'] . '/cap-nhat')) ?>" class="stacked-form">
   <?= Csrf::field() ?>
-  <label>Sản lượng thực tế <input type="number" name="output_qty" value="<?= e($report['output_qty'] ?? '') ?>"></label>
   <label>Chỉ tiêu ca (hộp) <input type="number" name="target_qty" value="<?= e($report['target_qty'] ?? '') ?>"></label>
+  <label>Số lượng thực tế (tổng làm ra) <input type="number" name="output_qty" class="js-output" value="<?= e($report['output_qty'] ?? '') ?>"></label>
+  <label>Số lượng thành phẩm (đạt chuẩn nhập kho) <input type="number" name="finished_qty" class="js-finished" value="<?= e($report['finished_qty'] ?? '') ?>"></label>
   <label>Số nhân sự <input type="number" name="worker_count" value="<?= e($report['worker_count'] ?? '') ?>"></label>
   <label>Sự cố <textarea name="incidents" rows="2"><?= e($report['incidents'] ?? '') ?></textarea></label>
 
@@ -31,7 +32,14 @@ $canLock = !$isLocked && Auth::is(ROLE_VAN_HANH);
   <div><button type="submit" class="btn-primary">Lưu thay đổi</button></div>
 </form>
 <?php else: ?>
-  <p>Sản lượng thực tế: <?= displayValue($report['output_qty']) ?> · Chỉ tiêu: <?= displayValue($report['target_qty']) ?></p>
+  <p>Chỉ tiêu: <?= displayValue($report['target_qty']) ?>
+     · Thực tế: <?= displayValue($report['output_qty']) ?>
+     · Thành phẩm: <?= displayValue($report['finished_qty']) ?>
+     <?php if ($report['output_qty'] !== null && $report['finished_qty'] !== null): ?>
+       · Lỗi: <strong class="<?= ((int) $report['output_qty'] - (int) $report['finished_qty']) > 0 ? 'cell-risk' : '' ?>">
+         <?= formatQty((int) $report['output_qty'] - (int) $report['finished_qty'], 'count') ?></strong>
+     <?php endif; ?>
+  </p>
   <p>Số nhân sự: <?= displayValue($report['worker_count']) ?></p>
   <p>Sự cố: <?= $report['incidents'] ? e($report['incidents']) : '(không có)' ?></p>
   <p>Chỉ tiêu bù ngày mai: <?= displayValue($report['catch_up_target_tomorrow']) ?></p>
@@ -39,22 +47,26 @@ $canLock = !$isLocked && Auth::is(ROLE_VAN_HANH);
 <?php endif; ?>
 </div>
 
+<?php if ($advice): ?>
+<div class="card">
+  <h3>Đề xuất bù sản lượng</h3>
+  <?php require APP_PATH . '/views/partials/catchup_advice.php'; ?>
+</div>
+<?php elseif ($shortfall > 0): ?>
+<div class="card">
+  <h3>Đề xuất bù sản lượng</h3>
+  <p class="hint">Ca này hụt <?= formatQty($shortfall, 'count') ?> hộp, nhưng lệnh chưa có định mức năng suất đã duyệt
+    (số người chuẩn, giờ/ngày, hộp/giờ) nên chưa tính được nên tăng ca hay thêm người.</p>
+</div>
+<?php endif; ?>
+
 <div class="card">
   <p>Người ghi: <?= e($report['logged_by_name'] ?? '') ?> · <?= e($report['logged_at'] ?? '') ?></p>
   <p>QC xác nhận: <?= $report['qc_confirmed_by'] ? e($report['qc_confirmed_by_name']) . ' · ' . e($report['qc_confirmed_at']) : 'Chưa xác nhận' ?></p>
-  <?php if ($report['qc_confirmed_by']): ?>
-    <p>Số lượng đã kiểm: <?= displayValue($report['qc_checked_qty'] ?? null) ?> · Số lượng lỗi/hư hỏng: <?= displayValue($report['qc_defect_qty'] ?? null) ?></p>
-  <?php endif; ?>
   <?php if ($canConfirmQc): ?>
-    <form method="post" action="<?= e(url('/bao-cao-ca/' . $report['id'] . '/qc-xac-nhan')) ?>" class="stacked-form">
+    <form method="post" action="<?= e(url('/bao-cao-ca/' . $report['id'] . '/qc-xac-nhan')) ?>">
       <?= Csrf::field() ?>
-      <label>Số lượng đã kiểm (không bắt buộc)
-        <input type="number" name="qc_checked_qty">
-      </label>
-      <label>Số lượng lỗi/hư hỏng (không bắt buộc)
-        <input type="number" name="qc_defect_qty">
-      </label>
-      <div><button type="submit" class="btn-secondary btn">QC xác nhận</button></div>
+      <button type="submit" class="btn-secondary btn">QC xác nhận số liệu ca này</button>
     </form>
   <?php endif; ?>
   <?php if ($isLocked): ?>

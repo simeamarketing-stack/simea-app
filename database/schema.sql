@@ -284,7 +284,8 @@ CREATE TABLE shift_reports (
     production_order_id INT UNSIGNED NOT NULL,
     report_date DATE NOT NULL,
     line VARCHAR(50) NOT NULL,           -- chuyền
-    output_qty INT UNSIGNED NULL,
+    output_qty INT UNSIGNED NULL,    -- sản lượng thực tế: tổng làm ra trong ca
+    finished_qty INT UNSIGNED NULL,  -- thành phẩm: số đạt chuẩn nhập kho. Lỗi = output_qty - finished_qty
     worker_count INT UNSIGNED NULL,
     incidents TEXT NULL,
     target_qty INT UNSIGNED NULL,         -- snapshot of expected output for this shift
@@ -294,8 +295,6 @@ CREATE TABLE shift_reports (
     logged_at DATETIME NULL,
     qc_confirmed_by INT UNSIGNED NULL,
     qc_confirmed_at DATETIME NULL,
-    qc_checked_qty INT UNSIGNED NULL,   -- optional, filled in by QC at confirm time — feeds dashboard defect rate
-    qc_defect_qty INT UNSIGNED NULL,    -- optional, filled in by QC at confirm time
     is_locked TINYINT(1) NOT NULL DEFAULT 0,
     locked_by INT UNSIGNED NULL,
     locked_at DATETIME NULL,

@@ -91,8 +91,8 @@ $router->post('/lenh-san-xuat/reservation/{reservationId}/xuat', [LenhSanXuatCon
 
 // ---------------- Báo cáo ca ----------------
 $router->get('/bao-cao-ca', [BaoCaoCaController::class, 'list'], ALL_ROLES);
-$router->get('/bao-cao-ca/tao', [BaoCaoCaController::class, 'createForm'], [ROLE_VAN_HANH]);
-$router->post('/bao-cao-ca/tao', [BaoCaoCaController::class, 'store'], [ROLE_VAN_HANH]);
+$router->get('/bao-cao-ca/ngay/{date}', [BaoCaoCaController::class, 'day'], ALL_ROLES);
+$router->post('/bao-cao-ca/ngay/{date}', [BaoCaoCaController::class, 'saveDay'], [ROLE_VAN_HANH, ROLE_QUAN_LY]);
 $router->get('/bao-cao-ca/{id}', [BaoCaoCaController::class, 'show'], ALL_ROLES);
 $router->post('/bao-cao-ca/{id}/cap-nhat', [BaoCaoCaController::class, 'update'], [ROLE_VAN_HANH, ROLE_QUAN_LY]);
 $router->post('/bao-cao-ca/{id}/qc-xac-nhan', [BaoCaoCaController::class, 'confirmQc'], [ROLE_VAN_HANH]);

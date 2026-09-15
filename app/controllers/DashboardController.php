@@ -21,6 +21,7 @@ class DashboardController extends Controller
         'vat-tu-sap-het' => 'Vật tư sắp hết',
         'hieu-suat' => 'Hiệu suất 30 ngày',
         'loi-qc' => 'Tỷ lệ lỗi QC 30 ngày',
+        'bu-san-luong' => 'Ca hụt chỉ tiêu & đề xuất bù',
     ];
 
     public function index(): void
@@ -59,6 +60,8 @@ class DashboardController extends Controller
             'attentionCount' => count($attention),
             'attentionByKey' => $attentionByKey,
             'lowStockCount' => count($this->buildMaterialAlerts()),
+            'shortfallCount' => count($shiftModel->shortfallReports(SHORTFALL_WINDOW_DAYS)),
+            'shortfallWindow' => SHORTFALL_WINDOW_DAYS,
             'productivity' => $shiftModel->productivitySummary(30),
             'qcDefect' => $shiftModel->qcDefectRate(30),
         ]);
@@ -112,11 +115,17 @@ class DashboardController extends Controller
                 $this->view('dashboard/detail_hieu_suat', $data);
                 return;
 
+            case 'bu-san-luong':
+                $data['rows'] = $this->buildShortfallAdvice();
+                $data['windowDays'] = SHORTFALL_WINDOW_DAYS;
+                $this->view('dashboard/detail_bu_san_luong', $data);
+                return;
+
             case 'loi-qc':
                 $data['summary'] = $shiftModel->qcDefectRate(30);
                 $reports = [];
                 foreach ($shiftModel->reportsBetween(date('Y-m-d', strtotime('-30 days')), date('Y-m-d')) as $report) {
-                    if ($report['qc_checked_qty'] !== null) {
+                    if ($report['output_qty'] !== null && $report['finished_qty'] !== null) {
                         $reports[] = $report;
                     }
                 }
@@ -139,12 +148,16 @@ class DashboardController extends Controller
         $orderMeta = $this->buildOrderMeta($ordersInRange, $orderModel, $shiftModel);
         $reports = $shiftModel->reportsBetween($date, $date);
 
-        $totals = ['output' => 0, 'target' => 0, 'checked' => 0, 'defect' => 0];
+        $totals = ['output' => 0, 'target' => 0, 'finished' => 0, 'checked' => 0, 'defect' => 0];
         foreach ($reports as $report) {
             $totals['output'] += (int) $report['output_qty'];
             $totals['target'] += (int) $report['target_qty'];
-            $totals['checked'] += (int) $report['qc_checked_qty'];
-            $totals['defect'] += (int) $report['qc_defect_qty'];
+            $totals['finished'] += (int) $report['finished_qty'];
+            // Tỷ lệ lỗi chỉ tính trên ca đã khai cả thực tế lẫn thành phẩm.
+            if ($report['output_qty'] !== null && $report['finished_qty'] !== null) {
+                $totals['checked'] += (int) $report['output_qty'];
+                $totals['defect'] += (int) $report['output_qty'] - (int) $report['finished_qty'];
+            }
         }
 
         $this->view('dashboard/day', [
@@ -244,6 +257,28 @@ class DashboardController extends Controller
         }
         uasort($legend, fn($a, $b) => strcasecmp($a['name'], $b['name']));
         return $legend;
+    }
+
+    /**
+     * Các ca hụt chỉ tiêu gần đây, mỗi ca kèm đề xuất tăng ca / thêm người.
+     * Ca thuộc lệnh chưa có định mức đã duyệt vẫn liệt kê, nhưng advice = null.
+     */
+    private function buildShortfallAdvice(): array
+    {
+        $rows = [];
+        foreach ((new ShiftReportModel())->shortfallReports(SHORTFALL_WINDOW_DAYS) as $report) {
+            $shortfall = (int) $report['target_qty'] - (int) $report['output_qty'];
+            $rows[] = [
+                'report' => $report,
+                'shortfall' => $shortfall,
+                'advice' => CatchUpAdvisor::advise(
+                    $shortfall,
+                    $report,
+                    $report['worker_count'] !== null ? (int) $report['worker_count'] : null
+                ),
+            ];
+        }
+        return $rows;
     }
 
     /**

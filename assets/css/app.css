@@ -297,6 +297,38 @@ table.calendar td.calendar-today { background: #FBF3E8; box-shadow: inset 0 0 0 
 .attention-lines a { text-decoration: none; }
 .attention-lines a:hover { text-decoration: underline; }
 
+/* ---------------- Bảng nhập báo cáo theo ngày ---------------- */
+
+table.day-table td { vertical-align: middle; }
+table.day-table input.cell-num { width: 84px; padding: 6px 8px; text-align: right; }
+table.day-table input.cell-text { min-width: 150px; padding: 6px 8px; }
+table.day-table input[type=text][name$="[line]"] { width: 100px; padding: 6px 8px; }
+.day-row-new td { background: #FBF7F1; }
+.day-row-new:hover td { background: #F8F2E9; }
+.day-row-locked td { background: var(--good-soft); }
+.day-reason { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: .87rem; color: var(--ink-muted); }
+
+/* ---------------- Đề xuất bù sản lượng ---------------- */
+
+.advice { margin-top: 14px; }
+.advice-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 4px; }
+.advice-head strong { color: var(--forest); }
+.advice-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; }
+.advice-option {
+  border: 1px solid var(--line); border-radius: 14px; padding: 13px 15px;
+  background: rgba(255, 255, 255, .6); font-size: .89rem;
+}
+.advice-option p { margin: 0 0 6px; }
+.advice-option p:last-child { margin-bottom: 0; }
+.advice-option-head {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-weight: 700; color: var(--forest); margin-bottom: 8px;
+}
+.advice-pick { border-color: var(--good); background: linear-gradient(180deg, var(--good-soft) 0%, rgba(255,255,255,.7) 100%); }
+.advice-cost { padding-top: 7px; border-top: 1px dashed var(--line-strong); }
+.advice-cost strong { color: var(--bean-dark); }
+.advice-foot { margin-top: 10px; }
+
 /* ---------------- Thanh tiến độ ---------------- */
 
 .progress-row { margin-bottom: 16px; }

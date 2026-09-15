@@ -76,24 +76,26 @@ $defectRate = $totals['checked'] > 0 ? $totals['defect'] / $totals['checked'] : 
 <div class="table-wrap">
 <table>
   <thead><tr>
-    <th>Chuyền</th><th>Lệnh</th><th>Sản lượng</th><th>Chỉ tiêu</th><th>Đạt</th>
-    <th>Nhân sự</th><th>SL/người</th><th>QC kiểm</th><th>QC lỗi</th><th>Trạng thái</th>
+    <th>Chuyền</th><th>Lệnh</th><th>Chỉ tiêu</th><th>Thực tế</th><th>Thành phẩm</th><th>Lỗi</th><th>Đạt</th>
+    <th>Nhân sự</th><th>SL/người</th><th>Trạng thái</th>
   </tr></thead>
   <tbody>
   <?php foreach ($reports as $r):
     $pct = ($r['output_qty'] !== null && $r['target_qty']) ? (int) $r['output_qty'] / (int) $r['target_qty'] : null;
     $perWorker = ($r['output_qty'] !== null && $r['worker_count']) ? (int) $r['output_qty'] / (int) $r['worker_count'] : null;
+    $defectQty = ($r['output_qty'] !== null && $r['finished_qty'] !== null)
+      ? (int) $r['output_qty'] - (int) $r['finished_qty'] : null;
   ?>
     <tr>
       <td><?= e($r['line']) ?></td>
       <td><a href="<?= e(url('/bao-cao-ca/' . $r['id'])) ?>"><?= e($r['order_code']) ?></a></td>
-      <td><?= displayValue($r['output_qty']) ?></td>
       <td><?= displayValue($r['target_qty']) ?></td>
+      <td><?= displayValue($r['output_qty']) ?></td>
+      <td><?= displayValue($r['finished_qty']) ?></td>
+      <td class="<?= ($defectQty !== null && $defectQty > 0) ? 'cell-risk' : '' ?>"><?= $defectQty !== null ? formatQty($defectQty, 'count') : displayValue(null) ?></td>
       <td class="<?= ($pct !== null && $pct < 1) ? 'cell-risk' : '' ?>"><?= $pct !== null ? round($pct * 100) . '%' : displayValue(null) ?></td>
       <td><?= displayValue($r['worker_count']) ?></td>
       <td><?= $perWorker !== null ? formatQty($perWorker) : displayValue(null) ?></td>
-      <td><?= displayValue($r['qc_checked_qty']) ?></td>
-      <td><?= displayValue($r['qc_defect_qty']) ?></td>
       <td><?= $r['is_locked'] ? '<span class="badge badge-good">Đã khóa</span>' : '<span class="badge badge-warn">Đang mở</span>' ?></td>
     </tr>
   <?php endforeach; ?>

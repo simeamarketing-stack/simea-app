@@ -93,6 +93,38 @@ class YieldNormModel extends Model
         $stmt->execute(['approved_by' => $approvedBy, 'id' => $id]);
     }
 
+    /**
+     * Định mức GIỜ CÔNG của SKU, suy ra từ định mức năng suất đã duyệt —
+     * không lưu thành trường riêng để hai con số không bao giờ mâu thuẫn.
+     *
+     * boxes_per_hour là năng suất của cả chuyền khi chạy đủ standard_worker_count
+     * người, nên năng suất mỗi người = boxes_per_hour / standard_worker_count.
+     *
+     * @return array{workers:int,boxes_per_hour:float,hours_per_day:float,boxes_per_worker_hour:float,labor_hours_per_box:float,boxes_per_day:float,hours_for_sample:float,labor_hours_for_sample:float,sample_boxes:int}|null
+     */
+    public function laborStandard(array $yieldNorm, int $sampleBoxes = 1000): ?array
+    {
+        $workers = (int) ($yieldNorm['standard_worker_count'] ?? 0);
+        $boxesPerHour = (float) ($yieldNorm['boxes_per_hour'] ?? 0);
+        $hoursPerDay = (float) ($yieldNorm['hours_per_day'] ?? 0);
+
+        if ($workers <= 0 || $boxesPerHour <= 0) {
+            return null;
+        }
+
+        return [
+            'workers' => $workers,
+            'boxes_per_hour' => $boxesPerHour,
+            'hours_per_day' => $hoursPerDay,
+            'boxes_per_worker_hour' => $boxesPerHour / $workers,
+            'labor_hours_per_box' => $workers / $boxesPerHour,
+            'boxes_per_day' => $boxesPerHour * $hoursPerDay,
+            'sample_boxes' => $sampleBoxes,
+            'hours_for_sample' => $sampleBoxes / $boxesPerHour,
+            'labor_hours_for_sample' => $sampleBoxes * $workers / $boxesPerHour,
+        ];
+    }
+
     /** @return string[] Vietnamese labels of any missing required field. */
     public function missingFields(array $yieldNorm): array
     {

@@ -92,6 +92,24 @@ function formatQty($value, ?string $unitType = null): string
     return rtrim(rtrim($formatted, '0'), ',');
 }
 
+/** Tiền Việt: 360000 -> "360.000 đ". */
+function formatMoney($value): string
+{
+    if ($value === null || $value === '') {
+        return '—';
+    }
+    return number_format(round((float) $value), 0, ',', '.') . ' đ';
+}
+
+/** Số giờ cho người đọc: 1.5 -> "1,5 giờ"; 8 -> "8 giờ". */
+function formatHours($value): string
+{
+    if ($value === null || $value === '') {
+        return '—';
+    }
+    return formatQty($value) . ' giờ';
+}
+
 /** @param array<string,string> $errors */
 function fieldError(array $errors, string $field): string
 {
