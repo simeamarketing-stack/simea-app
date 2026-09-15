@@ -143,13 +143,49 @@ thead th { background: var(--accent-soft); color: var(--accent); font-size: .78r
 .kpi-tile.kpi-risk .kpi-value { color: var(--risk); }
 .kpi-label { font-size: .78rem; color: var(--ink-muted); margin-top: 2px; }
 
+.kpi-tile { display: block; text-decoration: none; color: inherit; }
+a.kpi-tile:hover { border-color: var(--accent); box-shadow: var(--shadow, 0 2px 8px rgba(0,0,0,.08)); }
+
 .calendar-wrap { overflow-x: auto; }
 table.calendar { table-layout: fixed; width: 100%; min-width: 640px; }
 table.calendar th { text-align: center; background: var(--accent-soft); color: var(--accent); padding: 6px; font-size: .75rem; }
-table.calendar td { vertical-align: top; height: 90px; padding: 4px; border: 1px solid var(--line); }
+table.calendar td { vertical-align: top; height: 96px; padding: 4px; border: 1px solid var(--line); }
 table.calendar td.calendar-today { background: var(--info-soft); }
-.calendar-daynum { font-size: .78rem; color: var(--ink-muted); font-weight: 700; margin-bottom: 3px; }
-.calendar-pill { display: block; font-size: .68rem; color: #fff; padding: 2px 5px; border-radius: 5px; margin-bottom: 2px; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.calendar-daynum { display: inline-block; font-size: .78rem; color: var(--ink-muted); font-weight: 700; margin-bottom: 3px; text-decoration: none; padding: 0 3px; border-radius: 4px; }
+.calendar-daynum:hover { background: var(--accent-soft); color: var(--accent); }
+.calendar-line-head { font-size: .62rem; text-transform: uppercase; letter-spacing: .03em; color: var(--ink-faint, var(--ink-muted)); font-weight: 700; margin: 3px 0 1px; }
+
+/* Pill lịch: màu = khách hàng, chấm = mức độ gấp, vạch đáy = tiến độ */
+.cal-pill {
+  position: relative; display: flex; align-items: center; gap: 4px;
+  font-size: .68rem; line-height: 1.25; color: var(--ink); text-decoration: none;
+  padding: 2px 5px 4px; margin-bottom: 2px; border-radius: 4px;
+  border-left: 5px solid var(--pill-color);
+  background: color-mix(in srgb, var(--pill-color) 22%, transparent);
+  overflow: hidden;
+}
+.cal-pill:hover { background: color-mix(in srgb, var(--pill-color) 38%, transparent); }
+.cal-pill-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cal-pill-unassigned { border-left-style: dashed; }
+/* Cảnh báo dùng mép PHẢI, để mép trái vẫn thuộc về màu khách hàng. */
+.cal-pill-urgent { border-right: 4px solid var(--risk); }
+.cal-pill-warn { border-right: 4px solid var(--warn); }
+.cal-pill-dot { width: 6px; height: 6px; border-radius: 50%; flex: none; background: var(--warn); }
+.cal-pill-urgent .cal-pill-dot { background: var(--risk); }
+.cal-pill-progress { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--ink-muted); opacity: .55; }
+.cal-more { display: block; font-size: .65rem; color: var(--ink-muted); text-decoration: underline; margin-top: 2px; }
+
+.cal-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; font-size: .78rem; color: var(--ink-muted); }
+.legend-item { display: inline-flex; align-items: center; gap: 5px; }
+.legend-swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; flex: none; }
+.legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.legend-dot-urgent { background: var(--risk); }
+.legend-dot-warn { background: var(--warn); }
+.legend-progress { display: inline-block; width: 16px; height: 3px; background: var(--ink-muted); opacity: .55; }
+
+.attention-lines { margin: 0; padding-left: 18px; }
+.attention-lines li { margin-bottom: 6px; font-size: .94rem; }
+.cell-risk { color: var(--risk); font-weight: 600; }
 
 .alert-group { margin-bottom: 14px; }
 .alert-group:last-child { margin-bottom: 0; }

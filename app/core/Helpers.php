@@ -75,6 +75,23 @@ function displayValue($value, string $suffix = ''): string
     return e((string) $value) . $suffix;
 }
 
+/**
+ * Số lượng cho người đọc: đơn vị đếm được ra số nguyên, đơn vị liên tục giữ
+ * tối đa 2 chữ số thập phân — kiểu Việt (1.030 / 16.050,5) thay vì 1030.0000.
+ */
+function formatQty($value, ?string $unitType = null): string
+{
+    if ($value === null || $value === '') {
+        return '—';
+    }
+    $num = (float) $value;
+    if ($unitType === 'count') {
+        return number_format(round($num), 0, ',', '.');
+    }
+    $formatted = number_format(round($num, 2), 2, ',', '.');
+    return rtrim(rtrim($formatted, '0'), ',');
+}
+
 /** @param array<string,string> $errors */
 function fieldError(array $errors, string $field): string
 {

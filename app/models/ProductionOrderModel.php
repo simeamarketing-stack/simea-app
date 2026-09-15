@@ -193,15 +193,23 @@ class ProductionOrderModel extends Model
         return ['key' => 'normal', 'label' => 'Bình thường', 'css' => 'badge-good'];
     }
 
-    private function hasEnoughMaterial(array $order): bool
+    /**
+     * Nhu cầu vật tư của 1 lệnh, tính từ BOM đã đóng băng lúc phát hành.
+     * Nguồn duy nhất cho cả badge "chưa đủ vật tư" lẫn số liệu dashboard —
+     * đừng nhân bản công thức này ở chỗ khác.
+     *
+     * Dòng BOM chưa điền định lượng bị bỏ qua (không suy diễn thành 0).
+     * `reserved` tính cả phiếu giữ chỗ đã 'consumed': vật tư đã xuất dùng rồi
+     * thì không được báo là còn thiếu.
+     *
+     * @return array<int,array{material_id:int,material_code:string,material_name:string,unit_of_measure:string,unit_type:string,required:float,reserved:float,shortfall:float}>
+     */
+    public function materialRequirements(array $order): array
     {
-        if (!$order['released_bom_version_id']) {
-            return true;
+        if (empty($order['released_bom_version_id']) || empty($order['planned_quantity'])) {
+            return [];
         }
         $lines = (new BomLineModel())->allForVersion((int) $order['released_bom_version_id']);
-        if (!$lines) {
-            return true;
-        }
         $unitsPerBox = (int) ($order['units_per_box'] ?? 1);
         $plannedQty = (int) $order['planned_quantity'];
 
@@ -210,19 +218,49 @@ class ProductionOrderModel extends Model
              WHERE production_order_id = :order_id AND material_id = :material_id AND status IN ('active', 'consumed')"
         );
 
+        $rows = [];
         foreach ($lines as $line) {
+            if ($line['quantity'] === null) {
+                continue;
+            }
             $totalUnits = $line['basis_unit'] === 'per_box' ? $plannedQty : $plannedQty * $unitsPerBox;
             $factor = 1 + ((float) ($line['buffer_pct'] ?? 0)) / 100 + ((float) ($line['waste_pct'] ?? 0)) / 100;
-            $required = (float) $line['quantity'] * $factor * $totalUnits;
+            $required = roundQuantity((float) $line['quantity'] * $factor * $totalUnits, $line['unit_type']);
 
             $reservedStmt->execute(['order_id' => $order['id'], 'material_id' => $line['material_id']]);
             $reserved = (float) $reservedStmt->fetchColumn();
 
-            if ($reserved < $required) {
+            $rows[] = [
+                'material_id' => (int) $line['material_id'],
+                'material_code' => $line['material_code'],
+                'material_name' => $line['material_name'],
+                'unit_of_measure' => $line['unit_of_measure'],
+                'unit_type' => $line['unit_type'],
+                'required' => $required,
+                'reserved' => $reserved,
+                'shortfall' => max(0, $required - $reserved),
+            ];
+        }
+        return $rows;
+    }
+
+    private function hasEnoughMaterial(array $order): bool
+    {
+        foreach ($this->materialRequirements($order) as $row) {
+            if ($row['shortfall'] > 0) {
                 return false;
             }
         }
         return true;
+    }
+
+    /** Lệnh đã phát hành và đang chạy — cơ sở tính nhu cầu vật tư thực tế. */
+    public function activeOrders(): array
+    {
+        return $this->db()->query(
+            $this->baseSelect() . " WHERE po.status IN ('released', 'in_progress')
+             ORDER BY po.current_due_date IS NULL, po.current_due_date, po.order_code"
+        )->fetchAll();
     }
 
     /**

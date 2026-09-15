@@ -185,6 +185,26 @@ class ShiftReportModel extends Model
         return ['output' => $output, 'target' => $target, 'pct' => $target > 0 ? $output / $target : null];
     }
 
+    /**
+     * Toàn bộ báo cáo ca trong khoảng ngày — một truy vấn phục vụ cả lịch
+     * tháng lẫn trang chi tiết ngày, thay vì query lặp theo từng ngày.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function reportsBetween(string $startDate, string $endDate): array
+    {
+        $stmt = $this->db()->prepare(
+            'SELECT sr.*, po.order_code, po.customer_id, c.name AS customer_name
+             FROM shift_reports sr
+             JOIN production_orders po ON po.id = sr.production_order_id
+             JOIN customers c ON c.id = po.customer_id
+             WHERE sr.report_date BETWEEN :start AND :end
+             ORDER BY sr.report_date, sr.line, sr.id'
+        );
+        $stmt->execute(['start' => $startDate, 'end' => $endDate]);
+        return $stmt->fetchAll();
+    }
+
     /** Tổng sản lượng đã ghi nhận cho 1 lệnh sản xuất (để tính % hoàn thành so với planned_quantity). */
     public function totalOutputForOrder(int $orderId): int
     {
